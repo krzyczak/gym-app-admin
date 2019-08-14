@@ -1,0 +1,79 @@
+version: 2
+jobs:
+  test:
+    working_directory: /tmp/gym-app-admin-app
+    docker:
+      - image: circleci/node:10.0.0-stretch
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run: npm i
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - run: npm run test
+      - persist_to_workspace:
+          root: /tmp/gym-app-admin-app
+          paths:
+            - .
+  build:
+    working_directory: /tmp/gym-app-admin-app
+    docker:
+      - image: circleci/node:10.0.0-stretch
+    steps:
+      - attach_workspace:
+          at: .
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run: npm i
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - run: npm run build
+      - persist_to_workspace:
+          root: /tmp/gym-app-admin-app
+          paths:
+            - .
+  deploy:
+    working_directory: /tmp/gym-app-admin-app
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - attach_workspace:
+          at: .
+      - run: gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run: echo ${GCLOUD_SERVICE_KEY} > ./gcp-key.json
+      - run: gcloud auth activate-service-account --key-file=gcp-key.json
+      - run: gsutil -m rsync -r -d ./build ${GCLOUD_BUCKET}
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - test:
+          context: gym-app-admin-app-dev
+          filters:
+            tags:
+              only: /.*/
+      - build:
+          requires:
+            - test
+          context: gym-app-admin-app-dev
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - deploy:
+          requires:
+            - build
+          context: gym-app-admin-app-dev
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
