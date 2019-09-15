@@ -11,8 +11,7 @@ import apiClient from "./utils/apiClient";
 import createAuthService from "./services/auth";
 
 import Login from "./pages/Login";
-
-import "./App.css";
+import Dashboard from "./pages/Dashboard";
 
 const theme = createMuiTheme();
 
@@ -55,16 +54,10 @@ class App extends Component<{}, State> {
     });
 
     axios
-      .post(
-        process.env.REACT_APP_API_URL + "/auth/login",
-        {
-          email,
-          password
-        },
-        {
-          withCredentials: true
-        }
-      )
+      .post(process.env.REACT_APP_API_URL + "/auth/login", {
+        email,
+        password
+      })
       .then(() => {
         this.setState({
           loggedIn: true,
@@ -79,12 +72,22 @@ class App extends Component<{}, State> {
     });
   };
 
+  onLogout = () => {
+    this.authService.logout().then(() => {
+      this.setState({
+        loggedIn: false
+      });
+    });
+  };
+
   render() {
     return (
       <ThemeProvider theme={theme}>
         <AuthServiceContext.Provider value={this.authService}>
           <CssBaseline />
-          <div className="App">{this.state.loggedIn ? null : <Login onLogin={this.onLogin} />}</div>
+          <div className="App">
+            {this.state.loggedIn ? <Dashboard onLogout={this.onLogout} /> : <Login onLogin={this.onLogin} />}
+          </div>
         </AuthServiceContext.Provider>
       </ThemeProvider>
     );

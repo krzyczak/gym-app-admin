@@ -1,5 +1,6 @@
 import React, { Component, FormEvent } from "react";
 import { withStyles } from "@material-ui/styles";
+import { WithStyles } from "@material-ui/core";
 import { Theme, createStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Avatar from "@material-ui/core/Avatar";
@@ -48,8 +49,7 @@ const styles = (theme: Theme) =>
     }
   });
 
-interface Props {
-  classes: { [key: string]: string };
+interface Props extends WithStyles<typeof styles> {
   authService: AuthService | null;
   onLogin: () => void;
 }
