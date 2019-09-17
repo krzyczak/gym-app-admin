@@ -34,10 +34,10 @@ const styles = (theme: Theme) =>
 interface Props extends WithStyles<typeof styles> {}
 
 interface State {
-  exercises: { id: number; name: string }[] | undefined;
+  exercises: { id: number; name: string; imageUrl: string }[] | undefined;
   newExerciseFormVisible: boolean;
   editExerciseFormVisible: boolean;
-  editedExercise?: { id: number; name: string };
+  editedExercise?: { id: number; name: string; imageUrl: string };
 }
 
 class ExercisesPage extends Component<Props, State> {
@@ -68,7 +68,7 @@ class ExercisesPage extends Component<Props, State> {
   componentDidMount() {
     this.cancelablePromise(apiClient.get("/exercises")).then((response: any) => {
       this.setState({
-        exercises: response.data.exercises as { id: number; name: string }[]
+        exercises: response.data.exercises as { id: number; name: string; imageUrl: string }[]
       });
     });
   }
@@ -98,26 +98,42 @@ class ExercisesPage extends Component<Props, State> {
     });
   };
 
-  saveNewExercise = (exercise: { name: string }) => {
-    return this.cancelablePromise(apiClient.post("/exercises", exercise)).then((response: any) => {
+  saveNewExercise = (exercise: { name: string; image?: File | string }) => {
+    const data = new FormData();
+
+    data.append("name", exercise.name);
+
+    if (typeof exercise.image !== "string" && exercise.image !== undefined) {
+      data.append("image", exercise.image);
+    }
+
+    return this.cancelablePromise(apiClient.post("/exercises", data)).then((response: any) => {
       return response.data.exercise;
     });
   };
 
-  saveEditedExercise = (exercise: { id?: number; name: string }) => {
-    return this.cancelablePromise(apiClient.put("/exercises/" + exercise.id!, exercise)).then((response: any) => {
+  saveEditedExercise = (exercise: { id?: number; name: string; image?: File | string }) => {
+    const data = new FormData();
+
+    data.append("name", exercise.name);
+
+    if (exercise.image !== undefined) {
+      data.append("image", exercise.image);
+    }
+
+    return this.cancelablePromise(apiClient.put("/exercises/" + exercise.id!, data)).then((response: any) => {
       return response.data.exercise;
     });
   };
 
-  addNewExercise = (exercise: { id: number; name: string }) => {
+  addNewExercise = (exercise: { id: number; name: string; imageUrl: string }) => {
     this.setState({
       newExerciseFormVisible: false,
       exercises: [exercise].concat(this.state.exercises!)
     });
   };
 
-  updateEditedExercise = (updatedExercise: { id: number; name: string }) => {
+  updateEditedExercise = (updatedExercise: { id: number; name: string; imageUrl: string }) => {
     this.setState({
       editExerciseFormVisible: false,
       exercises: this.state.exercises!.map(exercise =>

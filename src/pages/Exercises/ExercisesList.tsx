@@ -3,6 +3,7 @@ import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { withStyles } from "@material-ui/styles";
+import Avatar from "@material-ui/core/Avatar";
 import { WithStyles } from "@material-ui/core";
 import { Theme, createStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
@@ -19,11 +20,16 @@ const styles = (theme: Theme) =>
       "& > *": {
         display: "inline-block"
       }
+    },
+
+    image: {
+      width: 60,
+      height: 60
     }
   });
 
 interface Props extends WithStyles<typeof styles> {
-  exercises: { id: number; name: string }[];
+  exercises: { id: number; name: string; imageUrl: string }[];
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
 }
@@ -37,6 +43,7 @@ class ExercisesList extends Component<Props> {
         <TableHead>
           <TableRow>
             <TableCell padding="checkbox">id</TableCell>
+            <TableCell>image</TableCell>
             <TableCell>name</TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -46,6 +53,9 @@ class ExercisesList extends Component<Props> {
             <TableRow key={exercise.id}>
               <TableCell padding="checkbox" scope="row">
                 {exercise.id}
+              </TableCell>
+              <TableCell scope="row">
+                {exercise.imageUrl && <Avatar src={exercise.imageUrl} className={classes.image} />}
               </TableCell>
               <TableCell scope="row">{exercise.name}</TableCell>
               <TableCell scope="row" className={classes.optionsCell}>
