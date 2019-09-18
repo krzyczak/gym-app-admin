@@ -4,6 +4,7 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { WithStyles } from "@material-ui/core";
@@ -29,20 +30,22 @@ const styles = (theme: Theme) =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-  exercise?: undefined | { id: number; name: string; imageUrl: string };
+  exercise?: undefined | { id: number; name: string; imageUrl: string; videoUrl: string };
   onCancel: () => void;
-  onSubmit: (exercise: { id: number; name: string; imageUrl: string }) => void;
+  onSubmit: (exercise: { id: number; name: string; imageUrl: string; videoUrl: string }) => void;
   save: (data: {
     id?: number;
     name: string;
     image?: File | string;
-  }) => Promise<{ id: number; name: string; imageUrl: string }>;
+    video?: File | string;
+  }) => Promise<{ id: number; name: string; imageUrl: string; videoUrl: string }>;
 }
 
 interface State {
   error?: string | undefined;
   loading: boolean;
   imageUrl?: string;
+  videoUrl?: string;
   name?: string;
 }
 
@@ -74,6 +77,7 @@ const MediaPlaceholder = withStyles(mediaPlaceholderStyles)(({ text, classes }: 
 
 class FormDialog extends Component<Props, State> {
   imageRef = createRef<HTMLInputElement>();
+  videoRef = createRef<HTMLInputElement>();
 
   constructor(props: Props) {
     super(props);
@@ -83,6 +87,7 @@ class FormDialog extends Component<Props, State> {
     this.state = {
       loading: false,
       imageUrl: exercise && exercise.imageUrl,
+      videoUrl: exercise && exercise.videoUrl,
       name: exercise && exercise.name
     };
   }
@@ -96,7 +101,7 @@ class FormDialog extends Component<Props, State> {
       loading: true
     });
 
-    let image;
+    let image, video;
 
     if (this.imageRef.current !== null && this.imageRef.current.files![0]) {
       image = this.imageRef.current.files![0];
@@ -104,11 +109,18 @@ class FormDialog extends Component<Props, State> {
       image = this.state.imageUrl;
     }
 
+    if (this.videoRef.current !== null && this.videoRef.current.files![0]) {
+      video = this.videoRef.current.files![0];
+    } else if (this.state.videoUrl) {
+      video = this.state.videoUrl;
+    }
+
     this.props
       .save({
         id: this.props.exercise ? this.props.exercise.id : undefined,
         name: elements.name.value,
-        image
+        image,
+        video
       })
       .then(exercise => {
         this.setState({
@@ -130,39 +142,36 @@ class FormDialog extends Component<Props, State> {
     }
   };
 
-  onImageFileInputChange = (e: FormEvent<HTMLInputElement>) => {
-    // console.log(e.currentTarget.files);
-    // console.log(target);
+  onVideoRemove = () => {
+    this.setState({
+      videoUrl: undefined
+    });
 
+    if (this.videoRef.current !== null) {
+      this.videoRef.current.value = "";
+    }
+  };
+
+  onImageFileInputChange = (e: FormEvent<HTMLInputElement>) => {
     this.setState({
       imageUrl: URL.createObjectURL(e.currentTarget.files![0])
     });
+  };
 
-    // this.uploader.methods.reset();
-    // this.uploader.methods.addFiles([target], { confirmed: false });
-
-    // const [file] = this.uploader.methods.getUploads();
-
-    // this.setState({
-    //   imageUpload: {
-    //     loading: true,
-    //     uuid: file.uuid
-    //   }
-    // });
-
-    // this.uploader.methods.setName(0, file.uuid);
-
-    // setTimeout(() => this.uploader.methods.uploadStoredFiles());
+  onVideoFileInputChange = (e: FormEvent<HTMLInputElement>) => {
+    this.setState({
+      videoUrl: URL.createObjectURL(e.currentTarget.files![0])
+    });
   };
 
   render() {
     const { onCancel, exercise, classes } = this.props;
-    const { error, loading, imageUrl, name } = this.state;
+    const { error, loading, imageUrl, videoUrl, name } = this.state;
 
     return (
       <Dialog
         open={true}
-        maxWidth={"xs"}
+        maxWidth="sm"
         fullWidth
         onClose={loading ? undefined : onCancel}
         aria-labelledby="form-dialog-title"
@@ -181,48 +190,80 @@ class FormDialog extends Component<Props, State> {
               type="text"
               fullWidth
             />
-            <Card>
-              <CardActionArea>
-                {imageUrl ? (
-                  <CardMedia className={classes.media} image={imageUrl} />
-                ) : (
-                  <MediaPlaceholder text="Image" />
-                )}
-              </CardActionArea>
-              <CardActions>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="secondary"
-                  disabled={imageUrl === undefined}
-                  onClick={this.onImageRemove}
-                  // disabled={this.isUploadInProgress()}
-                >
-                  Remove
-                </Button>
-                <input
-                  className={classes.uploadInput}
-                  id="upload-image"
-                  type="file"
-                  accept="image/*"
-                  name="image"
-                  onChange={this.onImageFileInputChange}
-                  ref={this.imageRef}
-                  // disabled={this.isUploadInProgress()}
-                />
-                <label htmlFor="upload-image">
-                  <Button
-                    size="small"
-                    component="span"
-                    variant="outlined"
-                    color="primary"
-                    // disabled={this.isUploadInProgress()}
-                  >
-                    Upload
-                  </Button>
-                </label>
-              </CardActions>
-            </Card>
+            <Grid container spacing={2}>
+              <Grid item sm={6}>
+                <Card>
+                  <CardActionArea>
+                    {imageUrl ? (
+                      <CardMedia className={classes.media} image={imageUrl} />
+                    ) : (
+                      <MediaPlaceholder text="Image" />
+                    )}
+                  </CardActionArea>
+                  <CardActions>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="secondary"
+                      disabled={imageUrl === undefined}
+                      onClick={this.onImageRemove}
+                    >
+                      Remove
+                    </Button>
+                    <input
+                      className={classes.uploadInput}
+                      id="upload-image"
+                      type="file"
+                      accept="image/*"
+                      name="image"
+                      onChange={this.onImageFileInputChange}
+                      ref={this.imageRef}
+                    />
+                    <label htmlFor="upload-image">
+                      <Button size="small" component="span" variant="outlined" color="primary">
+                        Upload
+                      </Button>
+                    </label>
+                  </CardActions>
+                </Card>
+              </Grid>
+              <Grid item sm={6}>
+                <Card>
+                  <CardActionArea>
+                    {videoUrl ? (
+                      <CardMedia component="video" className={classes.media} src={videoUrl} controls />
+                    ) : (
+                      <MediaPlaceholder text="Video" />
+                    )}
+                  </CardActionArea>
+                  <CardActions>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="secondary"
+                      disabled={videoUrl === undefined}
+                      onClick={this.onVideoRemove}
+                    >
+                      Remove
+                    </Button>
+                    <input
+                      className={classes.uploadInput}
+                      id="upload-video"
+                      type="file"
+                      accept="video/*"
+                      name="video"
+                      onChange={this.onVideoFileInputChange}
+                      ref={this.videoRef}
+                    />
+                    <label htmlFor="upload-video">
+                      <Button size="small" component="span" variant="outlined" color="primary">
+                        Upload
+                      </Button>
+                    </label>
+                  </CardActions>
+                </Card>
+              </Grid>
+            </Grid>
           </DialogContent>
           <DialogActions>
             <Button onClick={onCancel} disabled={loading} color="primary">

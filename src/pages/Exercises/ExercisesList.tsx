@@ -6,6 +6,7 @@ import { withStyles } from "@material-ui/styles";
 import Avatar from "@material-ui/core/Avatar";
 import { WithStyles } from "@material-ui/core";
 import { Theme, createStyles } from "@material-ui/core/styles";
+import Checkbox from "@material-ui/core/Checkbox";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -29,7 +30,7 @@ const styles = (theme: Theme) =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-  exercises: { id: number; name: string; imageUrl: string }[];
+  exercises: { id: number; name: string; imageUrl: string; videoUrl: string }[];
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
 }
@@ -44,6 +45,7 @@ class ExercisesList extends Component<Props> {
           <TableRow>
             <TableCell padding="checkbox">id</TableCell>
             <TableCell>image</TableCell>
+            <TableCell>video</TableCell>
             <TableCell>name</TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -56,6 +58,9 @@ class ExercisesList extends Component<Props> {
               </TableCell>
               <TableCell scope="row">
                 {exercise.imageUrl && <Avatar src={exercise.imageUrl} className={classes.image} />}
+              </TableCell>
+              <TableCell scope="row">
+                <Checkbox disabled checked={exercise.videoUrl !== null} />
               </TableCell>
               <TableCell scope="row">{exercise.name}</TableCell>
               <TableCell scope="row" className={classes.optionsCell}>

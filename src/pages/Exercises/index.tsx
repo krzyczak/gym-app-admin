@@ -34,10 +34,10 @@ const styles = (theme: Theme) =>
 interface Props extends WithStyles<typeof styles> {}
 
 interface State {
-  exercises: { id: number; name: string; imageUrl: string }[] | undefined;
+  exercises: { id: number; name: string; imageUrl: string; videoUrl: string }[] | undefined;
   newExerciseFormVisible: boolean;
   editExerciseFormVisible: boolean;
-  editedExercise?: { id: number; name: string; imageUrl: string };
+  editedExercise?: { id: number; name: string; imageUrl: string; videoUrl: string };
 }
 
 class ExercisesPage extends Component<Props, State> {
@@ -68,7 +68,7 @@ class ExercisesPage extends Component<Props, State> {
   componentDidMount() {
     this.cancelablePromise(apiClient.get("/exercises")).then((response: any) => {
       this.setState({
-        exercises: response.data.exercises as { id: number; name: string; imageUrl: string }[]
+        exercises: response.data.exercises as { id: number; name: string; imageUrl: string; videoUrl: string }[]
       });
     });
   }
@@ -98,7 +98,7 @@ class ExercisesPage extends Component<Props, State> {
     });
   };
 
-  saveNewExercise = (exercise: { name: string; image?: File | string }) => {
+  saveNewExercise = (exercise: { name: string; image?: File | string; video?: File | string }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
@@ -107,12 +107,16 @@ class ExercisesPage extends Component<Props, State> {
       data.append("image", exercise.image);
     }
 
+    if (typeof exercise.video !== "string" && exercise.video !== undefined) {
+      data.append("video", exercise.video);
+    }
+
     return this.cancelablePromise(apiClient.post("/exercises", data)).then((response: any) => {
       return response.data.exercise;
     });
   };
 
-  saveEditedExercise = (exercise: { id?: number; name: string; image?: File | string }) => {
+  saveEditedExercise = (exercise: { id?: number; name: string; image?: File | string; video?: File | string }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
@@ -121,19 +125,23 @@ class ExercisesPage extends Component<Props, State> {
       data.append("image", exercise.image);
     }
 
+    if (exercise.video !== undefined) {
+      data.append("video", exercise.video);
+    }
+
     return this.cancelablePromise(apiClient.put("/exercises/" + exercise.id!, data)).then((response: any) => {
       return response.data.exercise;
     });
   };
 
-  addNewExercise = (exercise: { id: number; name: string; imageUrl: string }) => {
+  addNewExercise = (exercise: { id: number; name: string; imageUrl: string; videoUrl: string }) => {
     this.setState({
       newExerciseFormVisible: false,
       exercises: [exercise].concat(this.state.exercises!)
     });
   };
 
-  updateEditedExercise = (updatedExercise: { id: number; name: string; imageUrl: string }) => {
+  updateEditedExercise = (updatedExercise: { id: number; name: string; imageUrl: string; videoUrl: string }) => {
     this.setState({
       editExerciseFormVisible: false,
       exercises: this.state.exercises!.map(exercise =>
