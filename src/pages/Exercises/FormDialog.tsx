@@ -5,15 +5,21 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Grid from "@material-ui/core/Grid";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormControl from "@material-ui/core/FormControl";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { WithStyles } from "@material-ui/core";
 import CardActions from "@material-ui/core/CardActions";
 import Typography from "@material-ui/core/Typography";
+import Select from "@material-ui/core/Select";
+import Input from "@material-ui/core/Input";
+import MenuItem from "@material-ui/core/MenuItem";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import Card from "@material-ui/core/Card";
 import { Theme, createStyles } from "@material-ui/core/styles";
+import Chip from "@material-ui/core/Chip";
 
 import ErrorPanel from "./ErrorPanel";
 
@@ -26,19 +32,28 @@ const styles = (theme: Theme) =>
     media: {
       height: 140,
       backgroundSize: "contain"
+    },
+    chips: {
+      display: "flex",
+      flexWrap: "wrap"
+    },
+    chip: {
+      margin: 2
     }
   });
 
 interface Props extends WithStyles<typeof styles> {
-  exercise?: undefined | { id: number; name: string; imageUrl: string; videoUrl: string };
+  exercise?: undefined | { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] };
+  exercises: { id: number; name: string }[];
   onCancel: () => void;
-  onSubmit: (exercise: { id: number; name: string; imageUrl: string; videoUrl: string }) => void;
+  onSubmit: (exercise: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }) => void;
   save: (data: {
     id?: number;
     name: string;
     image?: File | string;
     video?: File | string;
-  }) => Promise<{ id: number; name: string; imageUrl: string; videoUrl: string }>;
+    swaps: number[];
+  }) => Promise<{ id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }>;
 }
 
 interface State {
@@ -47,6 +62,7 @@ interface State {
   imageUrl?: string;
   videoUrl?: string;
   name?: string;
+  swaps: number[];
 }
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -84,18 +100,23 @@ class FormDialog extends Component<Props, State> {
 
     const { exercise } = props;
 
-    this.state = {
+    const state = {
       loading: false,
-      imageUrl: exercise && exercise.imageUrl,
-      videoUrl: exercise && exercise.videoUrl,
-      name: exercise && exercise.name
+      swaps: []
     };
+
+    if (exercise) {
+      Object.assign(state, exercise);
+    }
+
+    this.state = state;
   }
 
   onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const elements: FormElements = e.currentTarget.elements as FormElements;
+    const { swaps } = this.state;
 
     this.setState({
       loading: true
@@ -120,7 +141,8 @@ class FormDialog extends Component<Props, State> {
         id: this.props.exercise ? this.props.exercise.id : undefined,
         name: elements.name.value,
         image,
-        video
+        video,
+        swaps
       })
       .then(exercise => {
         this.setState({
@@ -164,9 +186,19 @@ class FormDialog extends Component<Props, State> {
     });
   };
 
+  onSwapsSelected = (e: React.ChangeEvent<{ value: unknown }>) => {
+    const value = e.target.value as number[];
+
+    this.setState({
+      swaps: value
+    });
+  };
+
   render() {
-    const { onCancel, exercise, classes } = this.props;
-    const { error, loading, imageUrl, videoUrl, name } = this.state;
+    const { onCancel, exercise, classes, exercises } = this.props;
+    const { error, loading, imageUrl, videoUrl, name, swaps } = this.state;
+
+    const filteredExercises = exercise !== undefined ? exercises.filter(({ id }) => id !== exercise.id) : exercises;
 
     return (
       <Dialog
@@ -264,6 +296,32 @@ class FormDialog extends Component<Props, State> {
                 </Card>
               </Grid>
             </Grid>
+            <FormControl fullWidth margin="normal">
+              <InputLabel htmlFor="select-multiple-chip">Swaps</InputLabel>
+              <Select
+                multiple
+                value={swaps}
+                onChange={this.onSwapsSelected}
+                input={<Input id="select-multiple-chip" />}
+                renderValue={selected => (
+                  <div className={classes.chips}>
+                    {(selected as number[]).map((value: number) => (
+                      <Chip
+                        key={value}
+                        label={filteredExercises.find(exercise => exercise.id === value)!.name}
+                        className={classes.chip}
+                      />
+                    ))}
+                  </div>
+                )}
+              >
+                {filteredExercises.map(({ name, id }) => (
+                  <MenuItem key={name} value={id}>
+                    {name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={onCancel} disabled={loading} color="primary">

@@ -34,10 +34,10 @@ const styles = (theme: Theme) =>
 interface Props extends WithStyles<typeof styles> {}
 
 interface State {
-  exercises: { id: number; name: string; imageUrl: string; videoUrl: string }[] | undefined;
+  exercises: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }[] | undefined;
   newExerciseFormVisible: boolean;
   editExerciseFormVisible: boolean;
-  editedExercise?: { id: number; name: string; imageUrl: string; videoUrl: string };
+  editedExercise?: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] };
 }
 
 class ExercisesPage extends Component<Props, State> {
@@ -68,7 +68,13 @@ class ExercisesPage extends Component<Props, State> {
   componentDidMount() {
     this.cancelablePromise(apiClient.get("/exercises")).then((response: any) => {
       this.setState({
-        exercises: response.data.exercises as { id: number; name: string; imageUrl: string; videoUrl: string }[]
+        exercises: response.data.exercises as {
+          id: number;
+          name: string;
+          imageUrl: string;
+          videoUrl: string;
+          swaps: number[];
+        }[]
       });
     });
   }
@@ -80,7 +86,14 @@ class ExercisesPage extends Component<Props, State> {
   onDelete = (id: number) => {
     this.cancelablePromise(apiClient.delete("/exercises/" + id)).then((response: any) => {
       this.setState({
-        exercises: this.state.exercises!.filter(exercise => exercise.id !== id)
+        exercises: this.state
+          .exercises!.filter(exercise => exercise.id !== id)
+          .map(exercise => {
+            return {
+              ...exercise,
+              swaps: exercise.swaps.filter(swapId => swapId !== id)
+            };
+          })
       });
     });
   };
@@ -98,10 +111,11 @@ class ExercisesPage extends Component<Props, State> {
     });
   };
 
-  saveNewExercise = (exercise: { name: string; image?: File | string; video?: File | string }) => {
+  saveNewExercise = (exercise: { name: string; image?: File | string; video?: File | string; swaps: number[] }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
+    data.append("swaps", JSON.stringify(exercise.swaps));
 
     if (typeof exercise.image !== "string" && exercise.image !== undefined) {
       data.append("image", exercise.image);
@@ -116,10 +130,17 @@ class ExercisesPage extends Component<Props, State> {
     });
   };
 
-  saveEditedExercise = (exercise: { id?: number; name: string; image?: File | string; video?: File | string }) => {
+  saveEditedExercise = (exercise: {
+    id?: number;
+    name: string;
+    image?: File | string;
+    video?: File | string;
+    swaps: number[];
+  }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
+    data.append("swaps", JSON.stringify(exercise.swaps));
 
     if (exercise.image !== undefined) {
       data.append("image", exercise.image);
@@ -134,14 +155,20 @@ class ExercisesPage extends Component<Props, State> {
     });
   };
 
-  addNewExercise = (exercise: { id: number; name: string; imageUrl: string; videoUrl: string }) => {
+  addNewExercise = (exercise: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }) => {
     this.setState({
       newExerciseFormVisible: false,
       exercises: [exercise].concat(this.state.exercises!)
     });
   };
 
-  updateEditedExercise = (updatedExercise: { id: number; name: string; imageUrl: string; videoUrl: string }) => {
+  updateEditedExercise = (updatedExercise: {
+    id: number;
+    name: string;
+    imageUrl: string;
+    videoUrl: string;
+    swaps: number[];
+  }) => {
     this.setState({
       editExerciseFormVisible: false,
       exercises: this.state.exercises!.map(exercise =>
@@ -174,6 +201,7 @@ class ExercisesPage extends Component<Props, State> {
             onCancel={this.onCloseNewExerciseDialog}
             save={this.saveNewExercise}
             onSubmit={this.addNewExercise}
+            exercises={exercises!}
           />
         )}
         {editExerciseFormVisible && (
@@ -182,6 +210,7 @@ class ExercisesPage extends Component<Props, State> {
             save={this.saveEditedExercise}
             exercise={this.state.editedExercise}
             onSubmit={this.updateEditedExercise}
+            exercises={exercises!}
           />
         )}
         {exercises !== undefined ? (

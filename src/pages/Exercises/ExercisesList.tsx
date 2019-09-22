@@ -30,7 +30,7 @@ const styles = (theme: Theme) =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-  exercises: { id: number; name: string; imageUrl: string; videoUrl: string }[];
+  exercises: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }[];
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
 }
