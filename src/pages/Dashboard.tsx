@@ -15,6 +15,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 import { Theme, createStyles } from "@material-ui/core/styles";
 
 import ExercisesPage from "./Exercises";
+import PlansPage from "./Plans";
 
 const drawerWidth = 240;
 
@@ -61,6 +62,11 @@ const pages = [
     id: "exercises",
     label: "Exercises",
     Component: ExercisesPage
+  },
+  {
+    id: "plans",
+    label: "Plans",
+    Component: PlansPage
   }
 ];
 
@@ -74,7 +80,13 @@ interface State {
 
 class DashboardPage extends Component<Props, State> {
   state = {
-    activePage: "exercises"
+    activePage: "plans"
+  };
+
+  changePage = (id: string) => {
+    this.setState({
+      activePage: id
+    });
   };
 
   render() {
@@ -105,7 +117,7 @@ class DashboardPage extends Component<Props, State> {
           <Divider />
           <List>
             {pages.map(({ id, label }) => (
-              <ListItem button key={id} selected={this.state.activePage === id}>
+              <ListItem button key={id} selected={this.state.activePage === id} onClick={() => this.changePage(id)}>
                 <ListItemText primary={label} />
               </ListItem>
             ))}
