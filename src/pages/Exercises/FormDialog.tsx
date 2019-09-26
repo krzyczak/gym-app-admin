@@ -42,18 +42,21 @@ const styles = (theme: Theme) =>
     }
   });
 
+type Exercise = { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[]; ratio: number };
+
 interface Props extends WithStyles<typeof styles> {
-  exercise?: undefined | { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] };
+  exercise?: undefined | Exercise;
   exercises: { id: number; name: string }[];
   onCancel: () => void;
-  onSubmit: (exercise: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }) => void;
+  onSubmit: (exercise: Exercise) => void;
   save: (data: {
     id?: number;
     name: string;
     image?: File | string;
     video?: File | string;
     swaps: number[];
-  }) => Promise<{ id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }>;
+    ratio: number;
+  }) => Promise<Exercise>;
 }
 
 interface State {
@@ -62,11 +65,13 @@ interface State {
   imageUrl?: string;
   videoUrl?: string;
   name?: string;
+  ratio?: number;
   swaps: number[];
 }
 
 interface FormElements extends HTMLFormControlsCollection {
   name: HTMLInputElement;
+  ratio: HTMLInputElement;
 }
 
 const mediaPlaceholderStyles = (theme: Theme) =>
@@ -142,6 +147,7 @@ class FormDialog extends Component<Props, State> {
         name: elements.name.value,
         image,
         video,
+        ratio: parseFloat(elements.ratio.value),
         swaps
       })
       .then(exercise => {
@@ -196,7 +202,7 @@ class FormDialog extends Component<Props, State> {
 
   render() {
     const { onCancel, exercise, classes, exercises } = this.props;
-    const { error, loading, imageUrl, videoUrl, name, swaps } = this.state;
+    const { error, loading, imageUrl, videoUrl, name, swaps, ratio } = this.state;
 
     const filteredExercises = exercise !== undefined ? exercises.filter(({ id }) => id !== exercise.id) : exercises;
 
@@ -220,6 +226,19 @@ class FormDialog extends Component<Props, State> {
               id="name"
               label="Name"
               type="text"
+              fullWidth
+            />
+            <TextField
+              defaultValue={ratio}
+              autoFocus
+              margin="dense"
+              required
+              id="ratio"
+              label="Ratio"
+              inputProps={{
+                step: "0.01"
+              }}
+              type="number"
               fullWidth
             />
             <Grid container spacing={2}>

@@ -1,9 +1,5 @@
 import React, { Component } from "react";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
 import { withStyles } from "@material-ui/styles";
-import Avatar from "@material-ui/core/Avatar";
 import { WithStyles } from "@material-ui/core";
 import { Theme, createStyles } from "@material-ui/core/styles";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -21,15 +17,10 @@ const styles = (theme: Theme) =>
       "& > *": {
         display: "inline-block"
       }
-    },
-
-    image: {
-      width: 60,
-      height: 60
     }
   });
 
-type User = { id: number; email: string; active: boolean; admin: boolean };
+type User = { id: number; email: string; active: boolean; admin: boolean; weight: number };
 
 interface Props extends WithStyles<typeof styles> {
   users: User[];
@@ -39,7 +30,7 @@ interface Props extends WithStyles<typeof styles> {
 
 class UsersList extends Component<Props> {
   render() {
-    const { classes, users, onDelete, onEdit } = this.props;
+    const { users } = this.props;
 
     return (
       <Table>
@@ -49,7 +40,7 @@ class UsersList extends Component<Props> {
             <TableCell padding="checkbox">active</TableCell>
             <TableCell padding="checkbox">admin</TableCell>
             <TableCell>email</TableCell>
-            <TableCell></TableCell>
+            <TableCell>weight</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -58,15 +49,14 @@ class UsersList extends Component<Props> {
               <TableCell padding="checkbox" scope="row">
                 {user.id}
               </TableCell>
-
               <TableCell scope="row">
                 <Checkbox disabled checked={user.active !== null} />
               </TableCell>
-
               <TableCell scope="row">
                 <Checkbox disabled checked={user.admin !== null} />
               </TableCell>
               <TableCell scope="row">{user.email}</TableCell>
+              <TableCell scope="row">{user.weight}</TableCell>
             </TableRow>
           ))}
         </TableBody>

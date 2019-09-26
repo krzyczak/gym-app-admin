@@ -30,7 +30,7 @@ const styles = (theme: Theme) =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-  exercises: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }[];
+  exercises: { id: number; ratio: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }[];
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
 }
@@ -46,6 +46,7 @@ class ExercisesList extends Component<Props> {
             <TableCell padding="checkbox">id</TableCell>
             <TableCell>image</TableCell>
             <TableCell>video</TableCell>
+            <TableCell>ratio</TableCell>
             <TableCell>name</TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -62,6 +63,7 @@ class ExercisesList extends Component<Props> {
               <TableCell scope="row">
                 <Checkbox disabled checked={exercise.videoUrl !== null} />
               </TableCell>
+              <TableCell scope="row">{exercise.ratio}</TableCell>
               <TableCell scope="row">{exercise.name}</TableCell>
               <TableCell scope="row" className={classes.optionsCell}>
                 <IconButton aria-label="delete" onClick={() => onDelete(exercise.id)}>

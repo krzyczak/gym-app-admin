@@ -10,6 +10,8 @@ import FormDialog from "./FormDialog";
 import Options from "./Options";
 import ExercisesEmpty from "./ExercisesEmpty";
 
+type Exercise = { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[]; ratio: number };
+
 function cancellablePromise<T>(promise: T): [T | Promise<{ canceled: boolean }>, () => void] {
   let cancel = () => {};
 
@@ -34,10 +36,10 @@ const styles = (theme: Theme) =>
 interface Props extends WithStyles<typeof styles> {}
 
 interface State {
-  exercises: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }[] | undefined;
+  exercises: Exercise[] | undefined;
   newExerciseFormVisible: boolean;
   editExerciseFormVisible: boolean;
-  editedExercise?: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] };
+  editedExercise?: Exercise;
 }
 
 class ExercisesPage extends Component<Props, State> {
@@ -68,13 +70,7 @@ class ExercisesPage extends Component<Props, State> {
   componentDidMount() {
     this.cancelablePromise(apiClient.get("/exercises")).then((response: any) => {
       this.setState({
-        exercises: response.data.exercises as {
-          id: number;
-          name: string;
-          imageUrl: string;
-          videoUrl: string;
-          swaps: number[];
-        }[]
+        exercises: response.data.exercises as Exercise[]
       });
     });
   }
@@ -111,10 +107,17 @@ class ExercisesPage extends Component<Props, State> {
     });
   };
 
-  saveNewExercise = (exercise: { name: string; image?: File | string; video?: File | string; swaps: number[] }) => {
+  saveNewExercise = (exercise: {
+    name: string;
+    image?: File | string;
+    video?: File | string;
+    swaps: number[];
+    ratio: number;
+  }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
+    data.append("ratio", exercise.ratio.toString());
     data.append("swaps", JSON.stringify(exercise.swaps));
 
     if (typeof exercise.image !== "string" && exercise.image !== undefined) {
@@ -136,10 +139,12 @@ class ExercisesPage extends Component<Props, State> {
     image?: File | string;
     video?: File | string;
     swaps: number[];
+    ratio: number;
   }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
+    data.append("ratio", exercise.ratio.toString());
     data.append("swaps", JSON.stringify(exercise.swaps));
 
     if (exercise.image !== undefined) {
@@ -155,20 +160,14 @@ class ExercisesPage extends Component<Props, State> {
     });
   };
 
-  addNewExercise = (exercise: { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }) => {
+  addNewExercise = (exercise: Exercise) => {
     this.setState({
       newExerciseFormVisible: false,
       exercises: [exercise].concat(this.state.exercises!)
     });
   };
 
-  updateEditedExercise = (updatedExercise: {
-    id: number;
-    name: string;
-    imageUrl: string;
-    videoUrl: string;
-    swaps: number[];
-  }) => {
+  updateEditedExercise = (updatedExercise: Exercise) => {
     this.setState({
       editExerciseFormVisible: false,
       exercises: this.state.exercises!.map(exercise =>

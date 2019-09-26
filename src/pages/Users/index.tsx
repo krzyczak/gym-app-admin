@@ -6,9 +6,8 @@ import { Theme, createStyles } from "@material-ui/core/styles";
 import apiClient from "../../utils/apiClient";
 
 import UsersList from "./UsersList";
-import Options from "./Options";
 
-type User = { id: number; email: string; active: boolean; admin: boolean };
+type User = { id: number; email: string; active: boolean; admin: boolean; weight: number };
 
 function cancellablePromise<T>(promise: T): [T | Promise<{ canceled: boolean }>, () => void] {
   let cancel = () => {};
