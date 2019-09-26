@@ -16,6 +16,7 @@ import { Theme, createStyles } from "@material-ui/core/styles";
 
 import ExercisesPage from "./Exercises";
 import PlansPage from "./Plans";
+import UsersPage from "./Users";
 
 const drawerWidth = 240;
 
@@ -67,6 +68,11 @@ const pages = [
     id: "plans",
     label: "Plans",
     Component: PlansPage
+  },
+  {
+    id: "users",
+    label: "Users",
+    Component: UsersPage
   }
 ];
 
