@@ -9,13 +9,13 @@ export default function createAuthService(apiClient: ApiClient) {
       return Cookies.get("connect.sid") !== undefined;
     },
     login(email, password) {
-      return apiClient.post("/auth/login", {
+      return apiClient.post("/api/auth/login", {
         email,
         password
       });
     },
     logout() {
-      return apiClient.post("/auth/logout", {});
+      return apiClient.post("/api/auth/logout", {});
     }
   } as AuthService;
 }

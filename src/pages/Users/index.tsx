@@ -61,7 +61,7 @@ class UsersPage extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.cancelablePromise(apiClient.get("/users")).then((response: any) => {
+    this.cancelablePromise(apiClient.get("/admin/users")).then((response: any) => {
       this.setState({
         users: response.data.users as User[]
       });

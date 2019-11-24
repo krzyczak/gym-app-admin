@@ -71,7 +71,7 @@ class PlansPage extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.cancelablePromise(apiClient.get("/plans")).then((response: any) => {
+    this.cancelablePromise(apiClient.get("/admin/plans")).then((response: any) => {
       this.setState({ plan: JSON.stringify(response.data, undefined, 2) });
     });
   }
@@ -89,7 +89,7 @@ class PlansPage extends Component<Props, State> {
     try {
       const parsedPlan = JSON.parse(plan);
 
-      this.cancelablePromise(apiClient.put("/plans", { scheme: parsedPlan }))
+      this.cancelablePromise(apiClient.put("/admin/plans", { scheme: parsedPlan }))
         .then((response: any) => {
           this.setState({ plan: JSON.stringify(response.data, undefined, 2) });
         })

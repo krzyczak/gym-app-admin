@@ -68,7 +68,7 @@ class ExercisesPage extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.cancelablePromise(apiClient.get("/exercises")).then((response: any) => {
+    this.cancelablePromise(apiClient.get("/admin/exercises")).then((response: any) => {
       this.setState({
         exercises: response.data.exercises as Exercise[]
       });
@@ -80,7 +80,7 @@ class ExercisesPage extends Component<Props, State> {
   }
 
   onDelete = (id: number) => {
-    this.cancelablePromise(apiClient.delete("/exercises/" + id)).then((response: any) => {
+    this.cancelablePromise(apiClient.delete("/admin/exercises/" + id)).then((response: any) => {
       this.setState({
         exercises: this.state
           .exercises!.filter(exercise => exercise.id !== id)
@@ -128,7 +128,7 @@ class ExercisesPage extends Component<Props, State> {
       data.append("video", exercise.video);
     }
 
-    return this.cancelablePromise(apiClient.post("/exercises", data)).then((response: any) => {
+    return this.cancelablePromise(apiClient.post("/admin/exercises", data)).then((response: any) => {
       return response.data.exercise;
     });
   };
@@ -155,7 +155,7 @@ class ExercisesPage extends Component<Props, State> {
       data.append("video", exercise.video);
     }
 
-    return this.cancelablePromise(apiClient.put("/exercises/" + exercise.id!, data)).then((response: any) => {
+    return this.cancelablePromise(apiClient.put("/admin/exercises/" + exercise.id!, data)).then((response: any) => {
       return response.data.exercise;
     });
   };

@@ -1,6 +1,5 @@
 /* eslint-disable import/first */
-import React, { Component, FormEvent } from "react";
-import axios from "axios";
+import React, { Component } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
@@ -38,33 +37,6 @@ class App extends Component<{}, State> {
       loggedIn: this.authService.isLoggedIn()
     };
   }
-
-  onSubmit = (e: FormEvent<FormElements>) => {
-    e.preventDefault();
-
-    if (this.state.loading) {
-      return;
-    }
-
-    const email = e.currentTarget.email.value;
-    const password = e.currentTarget.password.value;
-
-    this.setState({
-      loading: true
-    });
-
-    axios
-      .post(process.env.REACT_APP_API_URL + "/auth/login", {
-        email,
-        password
-      })
-      .then(() => {
-        this.setState({
-          loggedIn: true,
-          loading: false
-        });
-      });
-  };
 
   onLogin = () => {
     this.setState({
