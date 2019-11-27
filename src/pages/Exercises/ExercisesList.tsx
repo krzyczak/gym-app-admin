@@ -30,7 +30,14 @@ const styles = (theme: Theme) =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-  exercises: { id: number; ratio: number; name: string; imageUrl: string; videoUrl: string; swaps: number[] }[];
+  exercises: {
+    id: number;
+    ratio: number;
+    name: string;
+    imageUrl: string;
+    videoUrl: string;
+    swaps: number[];
+  }[];
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
 }
@@ -58,7 +65,9 @@ class ExercisesList extends Component<Props> {
                 {exercise.id}
               </TableCell>
               <TableCell scope="row">
-                {exercise.imageUrl && <Avatar src={exercise.imageUrl} className={classes.image} />}
+                {exercise.imageUrl && (
+                  <Avatar src={exercise.imageUrl} className={classes.image} />
+                )}
               </TableCell>
               <TableCell scope="row">
                 <Checkbox disabled checked={exercise.videoUrl !== null} />
@@ -66,10 +75,17 @@ class ExercisesList extends Component<Props> {
               <TableCell scope="row">{exercise.ratio}</TableCell>
               <TableCell scope="row">{exercise.name}</TableCell>
               <TableCell scope="row" className={classes.optionsCell}>
-                <IconButton aria-label="delete" onClick={() => onDelete(exercise.id)}>
+                <IconButton
+                  aria-label="delete"
+                  disabled
+                  onClick={() => onDelete(exercise.id)}
+                >
                   <DeleteIcon />
                 </IconButton>
-                <IconButton aria-label="edit" onClick={() => onEdit(exercise.id)}>
+                <IconButton
+                  aria-label="edit"
+                  onClick={() => onEdit(exercise.id)}
+                >
                   <EditIcon />
                 </IconButton>
               </TableCell>

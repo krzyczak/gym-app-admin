@@ -20,7 +20,13 @@ const styles = (theme: Theme) =>
     }
   });
 
-type User = { id: number; email: string; active: boolean; admin: boolean; weight: number };
+type User = {
+  id: number;
+  email: string;
+  active: boolean;
+  admin: boolean;
+  weight: number;
+};
 
 interface Props extends WithStyles<typeof styles> {
   users: User[];
@@ -50,10 +56,10 @@ class UsersList extends Component<Props> {
                 {user.id}
               </TableCell>
               <TableCell scope="row">
-                <Checkbox disabled checked={user.active !== null} />
+                <Checkbox disabled checked={user.active} />
               </TableCell>
               <TableCell scope="row">
-                <Checkbox disabled checked={user.admin !== null} />
+                <Checkbox disabled checked={user.admin} />
               </TableCell>
               <TableCell scope="row">{user.email}</TableCell>
               <TableCell scope="row">{user.weight}</TableCell>
