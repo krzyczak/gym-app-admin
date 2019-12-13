@@ -3,6 +3,11 @@ import React, { Component } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
+import { AxiosRequestConfig } from "axios";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import { Theme, createStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/styles";
+import { WithStyles } from "@material-ui/core";
 
 import AuthService from "./interfaces/AuthService";
 import AuthServiceContext from "./context/authService";
@@ -14,15 +19,32 @@ import Dashboard from "./pages/Dashboard";
 
 const theme = createMuiTheme();
 
-interface FormElements extends HTMLFormElement {
-  email: HTMLInputElement;
-  password: HTMLInputElement;
-}
-
 interface State {
   loading: boolean;
   loggedIn: boolean;
 }
+
+const spinnerStyles = (theme: Theme) =>
+  createStyles({
+    root: {
+      width: "500px",
+      height: "200px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      margin: "200px auto 0"
+    }
+  });
+
+const Spinner = withStyles(spinnerStyles)(
+  ({ classes }: WithStyles<typeof spinnerStyles>) => {
+    return (
+      <div className={classes.root}>
+        <CircularProgress />
+      </div>
+    );
+  }
+);
 
 class App extends Component<{}, State> {
   authService: AuthService;
@@ -30,36 +52,59 @@ class App extends Component<{}, State> {
   constructor(props: object) {
     super(props);
 
-    this.authService = createAuthService(apiClient);
+    this.authService = createAuthService();
 
     this.state = {
-      loading: false,
-      loggedIn: this.authService.isLoggedIn()
+      loading: true,
+      loggedIn: false
     };
   }
 
-  onLogin = () => {
-    this.setState({
-      loggedIn: this.authService.isLoggedIn()
-    });
-  };
+  async componentDidMount() {
+    let token = await this.authService.parseHash();
 
-  onLogout = () => {
-    this.authService.logout().then(() => {
-      this.setState({
-        loggedIn: false
+    if (token === null) {
+      try {
+        token = await this.authService.checkSession();
+      } catch (e) {
+        this.setState({
+          loading: false
+        });
+      }
+    }
+
+    if (token) {
+      apiClient.interceptors.request.use((config: AxiosRequestConfig) => {
+        config.headers["Authorization"] = `Bearer ${token}`;
+
+        return config;
       });
-    });
-  };
+
+      this.setState({
+        loggedIn: true,
+        loading: false
+      });
+    }
+  }
+
+  renderContent() {
+    if (this.state.loading) {
+      return <Spinner />;
+    }
+
+    if (this.state.loggedIn) {
+      return <Dashboard onLogout={this.authService.logout} />;
+    } else {
+      return <Login onLogin={this.authService.authorize} />;
+    }
+  }
 
   render() {
     return (
       <ThemeProvider theme={theme}>
         <AuthServiceContext.Provider value={this.authService}>
           <CssBaseline />
-          <div className="App">
-            {this.state.loggedIn ? <Dashboard onLogout={this.onLogout} /> : <Login onLogin={this.onLogin} />}
-          </div>
+          <div className="App">{this.renderContent()}</div>
         </AuthServiceContext.Provider>
       </ThemeProvider>
     );
