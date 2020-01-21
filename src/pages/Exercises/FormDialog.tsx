@@ -20,6 +20,8 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import Card from "@material-ui/core/Card";
 import { Theme, createStyles } from "@material-ui/core/styles";
 import Chip from "@material-ui/core/Chip";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
 
 import ErrorPanel from "./ErrorPanel";
 
@@ -42,7 +44,15 @@ const styles = (theme: Theme) =>
     }
   });
 
-type Exercise = { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[]; ratio: number };
+type Exercise = {
+  id: number;
+  name: string;
+  imageUrl: string;
+  videoUrl: string;
+  swaps: number[];
+  ratio: number;
+  unilateral: boolean;
+};
 
 interface Props extends WithStyles<typeof styles> {
   exercise?: undefined | Exercise;
@@ -56,6 +66,7 @@ interface Props extends WithStyles<typeof styles> {
     video?: File | string;
     swaps: number[];
     ratio: number;
+    unilateral: boolean;
   }) => Promise<Exercise>;
 }
 
@@ -66,6 +77,7 @@ interface State {
   videoUrl?: string;
   name?: string;
   ratio?: number;
+  unilateral: boolean;
   swaps: number[];
 }
 
@@ -84,17 +96,20 @@ const mediaPlaceholderStyles = (theme: Theme) =>
     }
   });
 
-interface MediaPlaceholderProps extends WithStyles<typeof mediaPlaceholderStyles> {
+interface MediaPlaceholderProps
+  extends WithStyles<typeof mediaPlaceholderStyles> {
   text: String;
 }
 
-const MediaPlaceholder = withStyles(mediaPlaceholderStyles)(({ text, classes }: MediaPlaceholderProps) => {
-  return (
-    <Typography variant="body1" className={classes.root}>
-      {text}
-    </Typography>
-  );
-});
+const MediaPlaceholder = withStyles(mediaPlaceholderStyles)(
+  ({ text, classes }: MediaPlaceholderProps) => {
+    return (
+      <Typography variant="body1" className={classes.root}>
+        {text}
+      </Typography>
+    );
+  }
+);
 
 class FormDialog extends Component<Props, State> {
   imageRef = createRef<HTMLInputElement>();
@@ -107,6 +122,7 @@ class FormDialog extends Component<Props, State> {
 
     const state = {
       loading: false,
+      unilateral: false,
       swaps: []
     };
 
@@ -121,7 +137,7 @@ class FormDialog extends Component<Props, State> {
     e.preventDefault();
 
     const elements: FormElements = e.currentTarget.elements as FormElements;
-    const { swaps } = this.state;
+    const { swaps, unilateral } = this.state;
 
     this.setState({
       loading: true
@@ -148,7 +164,8 @@ class FormDialog extends Component<Props, State> {
         image,
         video,
         ratio: parseFloat(elements.ratio.value),
-        swaps
+        swaps,
+        unilateral
       })
       .then(exercise => {
         this.setState({
@@ -200,11 +217,29 @@ class FormDialog extends Component<Props, State> {
     });
   };
 
+  onUnilateralChange = (e: React.ChangeEvent<{ checked: boolean }>) => {
+    this.setState({
+      unilateral: e.target.checked
+    });
+  };
+
   render() {
     const { onCancel, exercise, classes, exercises } = this.props;
-    const { error, loading, imageUrl, videoUrl, name, swaps, ratio } = this.state;
+    const {
+      error,
+      loading,
+      imageUrl,
+      videoUrl,
+      name,
+      swaps,
+      ratio,
+      unilateral
+    } = this.state;
 
-    const filteredExercises = exercise !== undefined ? exercises.filter(({ id }) => id !== exercise.id) : exercises;
+    const filteredExercises =
+      exercise !== undefined
+        ? exercises.filter(({ id }) => id !== exercise.id)
+        : exercises;
 
     return (
       <Dialog
@@ -214,7 +249,9 @@ class FormDialog extends Component<Props, State> {
         onClose={loading ? undefined : onCancel}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">{exercise !== undefined ? "Edit exercise" : "Create exercise"}</DialogTitle>
+        <DialogTitle id="form-dialog-title">
+          {exercise !== undefined ? "Edit exercise" : "Create exercise"}
+        </DialogTitle>
         {error !== undefined && <ErrorPanel message={error} />}
         <form onSubmit={this.onSubmit}>
           <DialogContent>
@@ -271,7 +308,12 @@ class FormDialog extends Component<Props, State> {
                       ref={this.imageRef}
                     />
                     <label htmlFor="upload-image">
-                      <Button size="small" component="span" variant="outlined" color="primary">
+                      <Button
+                        size="small"
+                        component="span"
+                        variant="outlined"
+                        color="primary"
+                      >
                         Upload
                       </Button>
                     </label>
@@ -282,7 +324,12 @@ class FormDialog extends Component<Props, State> {
                 <Card>
                   <CardActionArea>
                     {videoUrl ? (
-                      <CardMedia component="video" className={classes.media} src={videoUrl} controls />
+                      <CardMedia
+                        component="video"
+                        className={classes.media}
+                        src={videoUrl}
+                        controls
+                      />
                     ) : (
                       <MediaPlaceholder text="Video" />
                     )}
@@ -307,7 +354,12 @@ class FormDialog extends Component<Props, State> {
                       ref={this.videoRef}
                     />
                     <label htmlFor="upload-video">
-                      <Button size="small" component="span" variant="outlined" color="primary">
+                      <Button
+                        size="small"
+                        component="span"
+                        variant="outlined"
+                        color="primary"
+                      >
                         Upload
                       </Button>
                     </label>
@@ -327,7 +379,11 @@ class FormDialog extends Component<Props, State> {
                     {(selected as number[]).map((value: number) => (
                       <Chip
                         key={value}
-                        label={filteredExercises.find(exercise => exercise.id === value)!.name}
+                        label={
+                          filteredExercises.find(
+                            exercise => exercise.id === value
+                          )!.name
+                        }
                         className={classes.chip}
                       />
                     ))}
@@ -341,6 +397,17 @@ class FormDialog extends Component<Props, State> {
                 ))}
               </Select>
             </FormControl>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={unilateral}
+                  onChange={this.onUnilateralChange}
+                  value="unilateral"
+                  color="primary"
+                />
+              }
+              label="Unilateral"
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={onCancel} disabled={loading} color="primary">

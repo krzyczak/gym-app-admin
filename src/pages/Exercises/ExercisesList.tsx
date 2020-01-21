@@ -34,6 +34,7 @@ interface Props extends WithStyles<typeof styles> {
     id: number;
     ratio: number;
     name: string;
+    unilateral: boolean;
     imageUrl: string;
     videoUrl: string;
     swaps: number[];
@@ -54,6 +55,7 @@ class ExercisesList extends Component<Props> {
             <TableCell>image</TableCell>
             <TableCell>video</TableCell>
             <TableCell>ratio</TableCell>
+            <TableCell>unilateral</TableCell>
             <TableCell>name</TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -73,6 +75,9 @@ class ExercisesList extends Component<Props> {
                 <Checkbox disabled checked={exercise.videoUrl !== null} />
               </TableCell>
               <TableCell scope="row">{exercise.ratio}</TableCell>
+              <TableCell scope="row">
+                <Checkbox disabled checked={exercise.unilateral} />
+              </TableCell>
               <TableCell scope="row">{exercise.name}</TableCell>
               <TableCell scope="row" className={classes.optionsCell}>
                 <IconButton

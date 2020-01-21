@@ -10,9 +10,19 @@ import FormDialog from "./FormDialog";
 import Options from "./Options";
 import ExercisesEmpty from "./ExercisesEmpty";
 
-type Exercise = { id: number; name: string; imageUrl: string; videoUrl: string; swaps: number[]; ratio: number };
+type Exercise = {
+  id: number;
+  name: string;
+  imageUrl: string;
+  videoUrl: string;
+  swaps: number[];
+  ratio: number;
+  unilateral: boolean;
+};
 
-function cancellablePromise<T>(promise: T): [T | Promise<{ canceled: boolean }>, () => void] {
+function cancellablePromise<T>(
+  promise: T
+): [T | Promise<{ canceled: boolean }>, () => void] {
   let cancel = () => {};
 
   const racePromise = Promise.race([
@@ -52,7 +62,10 @@ class ExercisesPage extends Component<Props, State> {
 
   cancelablePromise(promise: Promise<any>) {
     return new Promise((resolve, reject) => {
-      const [responsePromise, cancel]: [Promise<any>, () => void] = cancellablePromise(promise);
+      const [responsePromise, cancel]: [
+        Promise<any>,
+        () => void
+      ] = cancellablePromise(promise);
 
       responsePromise
         .then(result => {
@@ -68,11 +81,13 @@ class ExercisesPage extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.cancelablePromise(apiClient.get("/admin/exercises")).then((response: any) => {
-      this.setState({
-        exercises: response.data.exercises as Exercise[]
-      });
-    });
+    this.cancelablePromise(apiClient.get("/admin/exercises")).then(
+      (response: any) => {
+        this.setState({
+          exercises: response.data.exercises as Exercise[]
+        });
+      }
+    );
   }
 
   componentWillUnmount() {
@@ -80,24 +95,28 @@ class ExercisesPage extends Component<Props, State> {
   }
 
   onDelete = (id: number) => {
-    this.cancelablePromise(apiClient.delete("/admin/exercises/" + id)).then((response: any) => {
-      this.setState({
-        exercises: this.state
-          .exercises!.filter(exercise => exercise.id !== id)
-          .map(exercise => {
-            return {
-              ...exercise,
-              swaps: exercise.swaps.filter(swapId => swapId !== id)
-            };
-          })
-      });
-    });
+    this.cancelablePromise(apiClient.delete("/admin/exercises/" + id)).then(
+      (response: any) => {
+        this.setState({
+          exercises: this.state
+            .exercises!.filter(exercise => exercise.id !== id)
+            .map(exercise => {
+              return {
+                ...exercise,
+                swaps: exercise.swaps.filter(swapId => swapId !== id)
+              };
+            })
+        });
+      }
+    );
   };
 
   onEdit = (id: number) => {
     this.setState({
       editExerciseFormVisible: true,
-      editedExercise: this.state.exercises!.find(exercise => exercise.id === id)!
+      editedExercise: this.state.exercises!.find(
+        exercise => exercise.id === id
+      )!
     });
   };
 
@@ -113,11 +132,13 @@ class ExercisesPage extends Component<Props, State> {
     video?: File | string;
     swaps: number[];
     ratio: number;
+    unilateral: boolean;
   }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
     data.append("ratio", exercise.ratio.toString());
+    data.append("unilateral", exercise.unilateral.toString());
     data.append("swaps", JSON.stringify(exercise.swaps));
 
     if (typeof exercise.image !== "string" && exercise.image !== undefined) {
@@ -128,7 +149,9 @@ class ExercisesPage extends Component<Props, State> {
       data.append("video", exercise.video);
     }
 
-    return this.cancelablePromise(apiClient.post("/admin/exercises", data)).then((response: any) => {
+    return this.cancelablePromise(
+      apiClient.post("/admin/exercises", data)
+    ).then((response: any) => {
       return response.data.exercise;
     });
   };
@@ -140,11 +163,13 @@ class ExercisesPage extends Component<Props, State> {
     video?: File | string;
     swaps: number[];
     ratio: number;
+    unilateral: boolean;
   }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
     data.append("ratio", exercise.ratio.toString());
+    data.append("unilateral", exercise.unilateral.toString());
     data.append("swaps", JSON.stringify(exercise.swaps));
 
     if (exercise.image !== undefined) {
@@ -155,7 +180,9 @@ class ExercisesPage extends Component<Props, State> {
       data.append("video", exercise.video);
     }
 
-    return this.cancelablePromise(apiClient.put("/admin/exercises/" + exercise.id!, data)).then((response: any) => {
+    return this.cancelablePromise(
+      apiClient.put("/admin/exercises/" + exercise.id!, data)
+    ).then((response: any) => {
       return response.data.exercise;
     });
   };
@@ -190,7 +217,11 @@ class ExercisesPage extends Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-    const { exercises, newExerciseFormVisible, editExerciseFormVisible } = this.state;
+    const {
+      exercises,
+      newExerciseFormVisible,
+      editExerciseFormVisible
+    } = this.state;
 
     return (
       <div className={classes.root}>
@@ -214,7 +245,11 @@ class ExercisesPage extends Component<Props, State> {
         )}
         {exercises !== undefined ? (
           exercises.length ? (
-            <ExercisesList onDelete={this.onDelete} onEdit={this.onEdit} exercises={exercises} />
+            <ExercisesList
+              onDelete={this.onDelete}
+              onEdit={this.onEdit}
+              exercises={exercises}
+            />
           ) : (
             <ExercisesEmpty />
           )
