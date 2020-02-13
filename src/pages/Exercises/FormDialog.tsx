@@ -1,25 +1,21 @@
 import React, { Component, FormEvent, createRef } from "react";
 import { withStyles } from "@material-ui/styles";
 import Dialog from "@material-ui/core/Dialog";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Grid from "@material-ui/core/Grid";
-import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { WithStyles } from "@material-ui/core";
 import CardActions from "@material-ui/core/CardActions";
 import Typography from "@material-ui/core/Typography";
-import Select from "@material-ui/core/Select";
-import Input from "@material-ui/core/Input";
-import MenuItem from "@material-ui/core/MenuItem";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import Card from "@material-ui/core/Card";
 import { Theme, createStyles } from "@material-ui/core/styles";
-import Chip from "@material-ui/core/Chip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 
@@ -209,11 +205,9 @@ class FormDialog extends Component<Props, State> {
     });
   };
 
-  onSwapsSelected = (e: React.ChangeEvent<{ value: unknown }>) => {
-    const value = e.target.value as number[];
-
+  onSwapsSelected = (swaps: { id: number }[]) => {
     this.setState({
-      swaps: value
+      swaps: swaps.map(({ id }) => id)
     });
   };
 
@@ -368,34 +362,25 @@ class FormDialog extends Component<Props, State> {
               </Grid>
             </Grid>
             <FormControl fullWidth margin="normal">
-              <InputLabel htmlFor="select-multiple-chip">Swaps</InputLabel>
-              <Select
+              <Autocomplete
                 multiple
-                value={swaps}
-                onChange={this.onSwapsSelected}
-                input={<Input id="select-multiple-chip" />}
-                renderValue={selected => (
-                  <div className={classes.chips}>
-                    {(selected as number[]).map((value: number) => (
-                      <Chip
-                        key={value}
-                        label={
-                          filteredExercises.find(
-                            exercise => exercise.id === value
-                          )!.name
-                        }
-                        className={classes.chip}
-                      />
-                    ))}
-                  </div>
+                id="tags-standard"
+                options={filteredExercises}
+                getOptionLabel={option => option.name}
+                onChange={(_e, value) => this.onSwapsSelected(value)}
+                value={swaps.map(
+                  id => filteredExercises.find(exercise => exercise.id === id)!
                 )}
-              >
-                {filteredExercises.map(({ name, id }) => (
-                  <MenuItem key={name} value={id}>
-                    {name}
-                  </MenuItem>
-                ))}
-              </Select>
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label="Swaps"
+                    placeholder="Type name..."
+                    fullWidth
+                  />
+                )}
+              />
             </FormControl>
             <FormControlLabel
               control={
