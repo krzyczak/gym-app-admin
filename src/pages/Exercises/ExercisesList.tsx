@@ -37,7 +37,6 @@ interface Props extends WithStyles<typeof styles> {
     unilateral: boolean;
     imageUrl: string;
     videoUrl: string;
-    swaps: number[];
   }[];
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;

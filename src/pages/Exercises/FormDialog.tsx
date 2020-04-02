@@ -1,12 +1,10 @@
 import React, { Component, FormEvent, createRef } from "react";
 import { withStyles } from "@material-ui/styles";
 import Dialog from "@material-ui/core/Dialog";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Grid from "@material-ui/core/Grid";
-import FormControl from "@material-ui/core/FormControl";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { WithStyles } from "@material-ui/core";
@@ -45,7 +43,6 @@ type Exercise = {
   name: string;
   imageUrl: string;
   videoUrl: string;
-  swaps: number[];
   ratio: number;
   unilateral: boolean;
 };
@@ -60,7 +57,6 @@ interface Props extends WithStyles<typeof styles> {
     name: string;
     image?: File | string;
     video?: File | string;
-    swaps: number[];
     ratio: number;
     unilateral: boolean;
   }) => Promise<Exercise>;
@@ -74,7 +70,6 @@ interface State {
   name?: string;
   ratio?: number;
   unilateral: boolean;
-  swaps: number[];
 }
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -118,8 +113,7 @@ class FormDialog extends Component<Props, State> {
 
     const state = {
       loading: false,
-      unilateral: false,
-      swaps: []
+      unilateral: false
     };
 
     if (exercise) {
@@ -133,7 +127,7 @@ class FormDialog extends Component<Props, State> {
     e.preventDefault();
 
     const elements: FormElements = e.currentTarget.elements as FormElements;
-    const { swaps, unilateral } = this.state;
+    const { unilateral } = this.state;
 
     this.setState({
       loading: true
@@ -160,7 +154,6 @@ class FormDialog extends Component<Props, State> {
         image,
         video,
         ratio: parseFloat(elements.ratio.value),
-        swaps,
         unilateral
       })
       .then(exercise => {
@@ -205,12 +198,6 @@ class FormDialog extends Component<Props, State> {
     });
   };
 
-  onSwapsSelected = (swaps: { id: number }[]) => {
-    this.setState({
-      swaps: swaps.map(({ id }) => id)
-    });
-  };
-
   onUnilateralChange = (e: React.ChangeEvent<{ checked: boolean }>) => {
     this.setState({
       unilateral: e.target.checked
@@ -218,22 +205,16 @@ class FormDialog extends Component<Props, State> {
   };
 
   render() {
-    const { onCancel, exercise, classes, exercises } = this.props;
+    const { onCancel, exercise, classes } = this.props;
     const {
       error,
       loading,
       imageUrl,
       videoUrl,
       name,
-      swaps,
       ratio,
       unilateral
     } = this.state;
-
-    const filteredExercises =
-      exercise !== undefined
-        ? exercises.filter(({ id }) => id !== exercise.id)
-        : exercises;
 
     return (
       <Dialog
@@ -361,27 +342,7 @@ class FormDialog extends Component<Props, State> {
                 </Card>
               </Grid>
             </Grid>
-            <FormControl fullWidth margin="normal">
-              <Autocomplete
-                multiple
-                id="tags-standard"
-                options={filteredExercises}
-                getOptionLabel={option => option.name}
-                onChange={(_e, value) => this.onSwapsSelected(value)}
-                value={swaps.map(
-                  id => filteredExercises.find(exercise => exercise.id === id)!
-                )}
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    variant="standard"
-                    label="Swaps"
-                    placeholder="Type name..."
-                    fullWidth
-                  />
-                )}
-              />
-            </FormControl>
+
             <FormControlLabel
               control={
                 <Switch

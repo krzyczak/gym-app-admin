@@ -15,7 +15,6 @@ type Exercise = {
   name: string;
   imageUrl: string;
   videoUrl: string;
-  swaps: number[];
   ratio: number;
   unilateral: boolean;
 };
@@ -98,14 +97,9 @@ class ExercisesPage extends Component<Props, State> {
     this.cancelablePromise(apiClient.delete("/admin/exercises/" + id)).then(
       (response: any) => {
         this.setState({
-          exercises: this.state
-            .exercises!.filter(exercise => exercise.id !== id)
-            .map(exercise => {
-              return {
-                ...exercise,
-                swaps: exercise.swaps.filter(swapId => swapId !== id)
-              };
-            })
+          exercises: this.state.exercises!.filter(
+            exercise => exercise.id !== id
+          )
         });
       }
     );
@@ -130,7 +124,6 @@ class ExercisesPage extends Component<Props, State> {
     name: string;
     image?: File | string;
     video?: File | string;
-    swaps: number[];
     ratio: number;
     unilateral: boolean;
   }) => {
@@ -139,7 +132,6 @@ class ExercisesPage extends Component<Props, State> {
     data.append("name", exercise.name);
     data.append("ratio", exercise.ratio.toString());
     data.append("unilateral", exercise.unilateral.toString());
-    data.append("swaps", JSON.stringify(exercise.swaps));
 
     if (typeof exercise.image !== "string" && exercise.image !== undefined) {
       data.append("image", exercise.image);
@@ -161,7 +153,6 @@ class ExercisesPage extends Component<Props, State> {
     name: string;
     image?: File | string;
     video?: File | string;
-    swaps: number[];
     ratio: number;
     unilateral: boolean;
   }) => {
@@ -170,7 +161,6 @@ class ExercisesPage extends Component<Props, State> {
     data.append("name", exercise.name);
     data.append("ratio", exercise.ratio.toString());
     data.append("unilateral", exercise.unilateral.toString());
-    data.append("swaps", JSON.stringify(exercise.swaps));
 
     if (exercise.image !== undefined) {
       data.append("image", exercise.image);
