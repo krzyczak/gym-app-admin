@@ -24,56 +24,56 @@ const styles = (theme: Theme) =>
   createStyles({
     root: {
       display: "flex",
-      height: "100vh"
+      height: "100vh",
     },
     appBar: {
       zIndex: theme.zIndex.drawer + 1,
-      textAlign: "left"
+      textAlign: "left",
     },
     content: {
       flexGrow: 1,
       height: "100vh",
-      overflow: "auto"
+      overflow: "auto",
     },
     container: {
       paddingLeft: theme.spacing(4),
       paddingRight: theme.spacing(4),
-      paddingTop: theme.spacing(4)
+      paddingTop: theme.spacing(4),
     },
     appBarSpacer: theme.mixins.toolbar,
     appBarShift: {
       marginLeft: drawerWidth,
-      width: `calc(100% - ${drawerWidth}px)`
+      width: `calc(100% - ${drawerWidth}px)`,
     },
     toolbar: {
-      paddingRight: 24
+      paddingRight: 24,
     },
     title: {
-      flexGrow: 1
+      flexGrow: 1,
     },
     drawerPaper: {
       position: "relative",
       whiteSpace: "nowrap",
-      width: drawerWidth
-    }
+      width: drawerWidth,
+    },
   });
 
 const pages = [
   {
     id: "exercises",
     label: "Exercises",
-    Component: ExercisesPage
+    Component: ExercisesPage,
   },
   {
     id: "plans",
     label: "Plans",
-    Component: PlansPage
+    Component: PlansPage,
   },
   {
     id: "users",
     label: "Users",
-    Component: UsersPage
-  }
+    Component: UsersPage,
+  },
 ];
 
 interface Props extends WithStyles<typeof styles> {
@@ -86,25 +86,33 @@ interface State {
 
 class DashboardPage extends Component<Props, State> {
   state = {
-    activePage: "plans"
+    activePage: "plans",
   };
 
   changePage = (id: string) => {
     this.setState({
-      activePage: id
+      activePage: id,
     });
   };
 
   render() {
     const { classes, onLogout } = this.props;
 
-    const ActivePageComponent = pages.find(({ id }) => id === this.state.activePage)!.Component;
+    const ActivePageComponent = pages.find(
+      ({ id }) => id === this.state.activePage
+    )!.Component;
 
     return (
       <div className={classes.root}>
         <AppBar position="absolute" className={cx(classes.appBar)}>
           <Toolbar className={classes.toolbar}>
-            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              noWrap
+              className={classes.title}
+            >
               Dashboard
             </Typography>
             <IconButton color="inherit" title="Logout" onClick={onLogout}>
@@ -115,7 +123,7 @@ class DashboardPage extends Component<Props, State> {
         <Drawer
           variant="permanent"
           classes={{
-            paper: classes.drawerPaper
+            paper: classes.drawerPaper,
           }}
           open={true}
         >
@@ -123,7 +131,12 @@ class DashboardPage extends Component<Props, State> {
           <Divider />
           <List>
             {pages.map(({ id, label }) => (
-              <ListItem button key={id} selected={this.state.activePage === id} onClick={() => this.changePage(id)}>
+              <ListItem
+                button
+                key={id}
+                selected={this.state.activePage === id}
+                onClick={() => this.changePage(id)}
+              >
                 <ListItemText primary={label} />
               </ListItem>
             ))}
