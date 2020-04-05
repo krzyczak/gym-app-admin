@@ -79,6 +79,7 @@ class PlansPage extends Component<{}, State> {
   onChangePlan = (newActivePlanIndex: number) => {
     this.setState({
       activePlanIndex: newActivePlanIndex,
+      error: undefined,
     });
   };
 
