@@ -15,6 +15,10 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import Card from "@material-ui/core/Card";
 import { Theme, createStyles } from "@material-ui/core/styles";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import InputLabel from "@material-ui/core/InputLabel";
 import Switch from "@material-ui/core/Switch";
 
 import ErrorPanel from "./ErrorPanel";
@@ -23,19 +27,19 @@ const styles = (theme: Theme) =>
   createStyles({
     root: {},
     uploadInput: {
-      display: "none"
+      display: "none",
     },
     media: {
       height: 140,
-      backgroundSize: "contain"
+      backgroundSize: "contain",
     },
     chips: {
       display: "flex",
-      flexWrap: "wrap"
+      flexWrap: "wrap",
     },
     chip: {
-      margin: 2
-    }
+      margin: 2,
+    },
   });
 
 type Exercise = {
@@ -59,6 +63,7 @@ interface Props extends WithStyles<typeof styles> {
     video?: File | string;
     ratio: number;
     unilateral: boolean;
+    primaryMuscle?: string;
   }) => Promise<Exercise>;
 }
 
@@ -70,6 +75,7 @@ interface State {
   name?: string;
   ratio?: number;
   unilateral: boolean;
+  primaryMuscle?: string;
 }
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -83,8 +89,8 @@ const mediaPlaceholderStyles = (theme: Theme) =>
       height: 140,
       display: "flex",
       alignItems: "center",
-      justifyContent: "center"
-    }
+      justifyContent: "center",
+    },
   });
 
 interface MediaPlaceholderProps
@@ -113,7 +119,7 @@ class FormDialog extends Component<Props, State> {
 
     const state = {
       loading: false,
-      unilateral: false
+      unilateral: false,
     };
 
     if (exercise) {
@@ -127,10 +133,10 @@ class FormDialog extends Component<Props, State> {
     e.preventDefault();
 
     const elements: FormElements = e.currentTarget.elements as FormElements;
-    const { unilateral } = this.state;
+    const { unilateral, primaryMuscle } = this.state;
 
     this.setState({
-      loading: true
+      loading: true,
     });
 
     let image, video;
@@ -154,21 +160,22 @@ class FormDialog extends Component<Props, State> {
         image,
         video,
         ratio: parseFloat(elements.ratio.value),
-        unilateral
+        unilateral,
+        primaryMuscle,
       })
-      .then(exercise => {
+      .then((exercise) => {
         this.setState({
-          loading: false
+          loading: false,
         });
 
         this.props.onSubmit(exercise);
       })
-      .catch(e => this.setState({ error: e.response.data.errors.message }));
+      .catch((e) => this.setState({ error: e.response.data.errors.message }));
   };
 
   onImageRemove = () => {
     this.setState({
-      imageUrl: undefined
+      imageUrl: undefined,
     });
 
     if (this.imageRef.current !== null) {
@@ -178,7 +185,7 @@ class FormDialog extends Component<Props, State> {
 
   onVideoRemove = () => {
     this.setState({
-      videoUrl: undefined
+      videoUrl: undefined,
     });
 
     if (this.videoRef.current !== null) {
@@ -188,19 +195,25 @@ class FormDialog extends Component<Props, State> {
 
   onImageFileInputChange = (e: FormEvent<HTMLInputElement>) => {
     this.setState({
-      imageUrl: URL.createObjectURL(e.currentTarget.files![0])
+      imageUrl: URL.createObjectURL(e.currentTarget.files![0]),
     });
   };
 
   onVideoFileInputChange = (e: FormEvent<HTMLInputElement>) => {
     this.setState({
-      videoUrl: URL.createObjectURL(e.currentTarget.files![0])
+      videoUrl: URL.createObjectURL(e.currentTarget.files![0]),
     });
   };
 
   onUnilateralChange = (e: React.ChangeEvent<{ checked: boolean }>) => {
     this.setState({
-      unilateral: e.target.checked
+      unilateral: e.target.checked,
+    });
+  };
+
+  onPrimaryMuscleChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    this.setState({
+      primaryMuscle: e.target.value as string,
     });
   };
 
@@ -213,7 +226,8 @@ class FormDialog extends Component<Props, State> {
       videoUrl,
       name,
       ratio,
-      unilateral
+      unilateral,
+      primaryMuscle,
     } = this.state;
 
     return (
@@ -248,7 +262,7 @@ class FormDialog extends Component<Props, State> {
               id="ratio"
               label="Ratio"
               inputProps={{
-                step: "0.01"
+                step: "0.01",
               }}
               type="number"
               fullWidth
@@ -342,7 +356,6 @@ class FormDialog extends Component<Props, State> {
                 </Card>
               </Grid>
             </Grid>
-
             <FormControlLabel
               control={
                 <Switch
@@ -354,6 +367,26 @@ class FormDialog extends Component<Props, State> {
               }
               label="Unilateral"
             />
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">
+                Primary muscle
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                value={primaryMuscle || ""}
+                onChange={this.onPrimaryMuscleChange}
+              >
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value="back">Back</MenuItem>
+                <MenuItem value="chest">Chest</MenuItem>
+                <MenuItem value="upper back">Upper back</MenuItem>
+                <MenuItem value="shoulder">Shoulder</MenuItem>
+                <MenuItem value="abs">Abs</MenuItem>
+                <MenuItem value="hamstring">Hamstring</MenuItem>
+                <MenuItem value="quads">Quads</MenuItem>
+                <MenuItem value="glutes">Glutes</MenuItem>
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={onCancel} disabled={loading} color="primary">

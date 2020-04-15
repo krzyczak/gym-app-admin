@@ -17,6 +17,7 @@ type Exercise = {
   videoUrl: string;
   ratio: number;
   unilateral: boolean;
+  primaryMuscle?: string;
 };
 
 function cancellablePromise<T>(
@@ -25,10 +26,10 @@ function cancellablePromise<T>(
   let cancel = () => {};
 
   const racePromise = Promise.race([
-    new Promise(resolve => {
+    new Promise((resolve) => {
       cancel = () => resolve({ canceled: true });
     }),
-    promise
+    promise,
   ]);
 
   return [racePromise as T | Promise<{ canceled: true }>, cancel];
@@ -38,8 +39,8 @@ const styles = (theme: Theme) =>
   createStyles({
     root: {
       width: "600px",
-      maxWidth: "100%"
-    }
+      maxWidth: "100%",
+    },
   });
 
 interface Props extends WithStyles<typeof styles> {}
@@ -55,7 +56,7 @@ class ExercisesPage extends Component<Props, State> {
   state: State = {
     exercises: undefined,
     newExerciseFormVisible: false,
-    editExerciseFormVisible: false
+    editExerciseFormVisible: false,
   };
   unmountCallbacks = new Set<() => void>();
 
@@ -67,12 +68,12 @@ class ExercisesPage extends Component<Props, State> {
       ] = cancellablePromise(promise);
 
       responsePromise
-        .then(result => {
+        .then((result) => {
           if (!result.canceled) {
             resolve(result);
           }
         })
-        .catch(e => reject(e))
+        .catch((e) => reject(e))
         .finally(() => {
           this.unmountCallbacks.delete(cancel);
         });
@@ -83,14 +84,14 @@ class ExercisesPage extends Component<Props, State> {
     this.cancelablePromise(apiClient.get("/admin/exercises")).then(
       (response: any) => {
         this.setState({
-          exercises: response.data.exercises as Exercise[]
+          exercises: response.data.exercises as Exercise[],
         });
       }
     );
   }
 
   componentWillUnmount() {
-    this.unmountCallbacks.forEach(callback => callback());
+    this.unmountCallbacks.forEach((callback) => callback());
   }
 
   onDelete = (id: number) => {
@@ -98,8 +99,8 @@ class ExercisesPage extends Component<Props, State> {
       (response: any) => {
         this.setState({
           exercises: this.state.exercises!.filter(
-            exercise => exercise.id !== id
-          )
+            (exercise) => exercise.id !== id
+          ),
         });
       }
     );
@@ -109,14 +110,14 @@ class ExercisesPage extends Component<Props, State> {
     this.setState({
       editExerciseFormVisible: true,
       editedExercise: this.state.exercises!.find(
-        exercise => exercise.id === id
-      )!
+        (exercise) => exercise.id === id
+      )!,
     });
   };
 
   onShowNewExerciseForm = () => {
     this.setState({
-      newExerciseFormVisible: true
+      newExerciseFormVisible: true,
     });
   };
 
@@ -126,12 +127,14 @@ class ExercisesPage extends Component<Props, State> {
     video?: File | string;
     ratio: number;
     unilateral: boolean;
+    primaryMuscle?: string;
   }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
     data.append("ratio", exercise.ratio.toString());
     data.append("unilateral", exercise.unilateral.toString());
+    data.append("primaryMuscle", exercise.primaryMuscle || "");
 
     if (typeof exercise.image !== "string" && exercise.image !== undefined) {
       data.append("image", exercise.image);
@@ -155,12 +158,14 @@ class ExercisesPage extends Component<Props, State> {
     video?: File | string;
     ratio: number;
     unilateral: boolean;
+    primaryMuscle?: string;
   }) => {
     const data = new FormData();
 
     data.append("name", exercise.name);
     data.append("ratio", exercise.ratio.toString());
     data.append("unilateral", exercise.unilateral.toString());
+    data.append("primaryMuscle", exercise.primaryMuscle || "");
 
     if (exercise.image !== undefined) {
       data.append("image", exercise.image);
@@ -180,28 +185,28 @@ class ExercisesPage extends Component<Props, State> {
   addNewExercise = (exercise: Exercise) => {
     this.setState({
       newExerciseFormVisible: false,
-      exercises: [exercise].concat(this.state.exercises!)
+      exercises: [exercise].concat(this.state.exercises!),
     });
   };
 
   updateEditedExercise = (updatedExercise: Exercise) => {
     this.setState({
       editExerciseFormVisible: false,
-      exercises: this.state.exercises!.map(exercise =>
+      exercises: this.state.exercises!.map((exercise) =>
         exercise.id === updatedExercise.id ? updatedExercise : exercise
-      )
+      ),
     });
   };
 
   onCloseNewExerciseDialog = () => {
     this.setState({
-      newExerciseFormVisible: false
+      newExerciseFormVisible: false,
     });
   };
 
   onCloseEditExerciseDialog = () => {
     this.setState({
-      editExerciseFormVisible: false
+      editExerciseFormVisible: false,
     });
   };
 
@@ -210,7 +215,7 @@ class ExercisesPage extends Component<Props, State> {
     const {
       exercises,
       newExerciseFormVisible,
-      editExerciseFormVisible
+      editExerciseFormVisible,
     } = this.state;
 
     return (
