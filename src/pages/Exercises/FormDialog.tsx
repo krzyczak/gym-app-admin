@@ -49,6 +49,8 @@ type Exercise = {
   videoUrl: string;
   ratio: number;
   unilateral: boolean;
+  primaryMuscle?: string;
+  scope?: string;
 };
 
 interface Props extends WithStyles<typeof styles> {
@@ -64,6 +66,7 @@ interface Props extends WithStyles<typeof styles> {
     ratio: number;
     unilateral: boolean;
     primaryMuscle?: string;
+    scope?: string;
   }) => Promise<Exercise>;
 }
 
@@ -76,6 +79,7 @@ interface State {
   ratio?: number;
   unilateral: boolean;
   primaryMuscle?: string;
+  scope?: string;
 }
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -133,7 +137,7 @@ class FormDialog extends Component<Props, State> {
     e.preventDefault();
 
     const elements: FormElements = e.currentTarget.elements as FormElements;
-    const { unilateral, primaryMuscle } = this.state;
+    const { unilateral, primaryMuscle, scope } = this.state;
 
     this.setState({
       loading: true,
@@ -162,6 +166,7 @@ class FormDialog extends Component<Props, State> {
         ratio: parseFloat(elements.ratio.value),
         unilateral,
         primaryMuscle,
+        scope,
       })
       .then((exercise) => {
         this.setState({
@@ -217,6 +222,12 @@ class FormDialog extends Component<Props, State> {
     });
   };
 
+  onScopeChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    this.setState({
+      scope: e.target.value as string,
+    });
+  };
+
   render() {
     const { onCancel, exercise, classes } = this.props;
     const {
@@ -228,6 +239,7 @@ class FormDialog extends Component<Props, State> {
       ratio,
       unilateral,
       primaryMuscle,
+      scope,
     } = this.state;
 
     return (
@@ -368,11 +380,9 @@ class FormDialog extends Component<Props, State> {
               label="Unilateral"
             />
             <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">
-                Primary muscle
-              </InputLabel>
+              <InputLabel id="primary-muscle">Primary muscle</InputLabel>
               <Select
-                labelId="demo-simple-select-label"
+                labelId="primary-muscle"
                 value={primaryMuscle || ""}
                 onChange={this.onPrimaryMuscleChange}
               >
@@ -385,6 +395,18 @@ class FormDialog extends Component<Props, State> {
                 <MenuItem value="hamstring">Hamstring</MenuItem>
                 <MenuItem value="quads">Quads</MenuItem>
                 <MenuItem value="glutes">Glutes</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="scope">Scope</InputLabel>
+              <Select
+                labelId="scope"
+                value={scope || ""}
+                onChange={this.onScopeChange}
+              >
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value="compound">Compound</MenuItem>
+                <MenuItem value="isolated">Isolated</MenuItem>
               </Select>
             </FormControl>
           </DialogContent>

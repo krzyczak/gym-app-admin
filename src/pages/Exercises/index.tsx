@@ -18,6 +18,7 @@ type Exercise = {
   ratio: number;
   unilateral: boolean;
   primaryMuscle?: string;
+  scope?: string;
 };
 
 function cancellablePromise<T>(
@@ -128,6 +129,7 @@ class ExercisesPage extends Component<Props, State> {
     ratio: number;
     unilateral: boolean;
     primaryMuscle?: string;
+    scope?: string;
   }) => {
     const data = new FormData();
 
@@ -135,6 +137,7 @@ class ExercisesPage extends Component<Props, State> {
     data.append("ratio", exercise.ratio.toString());
     data.append("unilateral", exercise.unilateral.toString());
     data.append("primaryMuscle", exercise.primaryMuscle || "");
+    data.append("scope", exercise.scope || "");
 
     if (typeof exercise.image !== "string" && exercise.image !== undefined) {
       data.append("image", exercise.image);
@@ -159,6 +162,7 @@ class ExercisesPage extends Component<Props, State> {
     ratio: number;
     unilateral: boolean;
     primaryMuscle?: string;
+    scope?: string;
   }) => {
     const data = new FormData();
 
@@ -166,6 +170,7 @@ class ExercisesPage extends Component<Props, State> {
     data.append("ratio", exercise.ratio.toString());
     data.append("unilateral", exercise.unilateral.toString());
     data.append("primaryMuscle", exercise.primaryMuscle || "");
+    data.append("scope", exercise.scope || "");
 
     if (exercise.image !== undefined) {
       data.append("image", exercise.image);
