@@ -7,16 +7,31 @@ import apiClient from "../../utils/apiClient";
 
 import UsersList from "./UsersList";
 
-type User = { id: number; email: string; active: boolean; admin: boolean; weight: number };
+type User = {
+  id: string;
+  average: number;
+  cycleWorkouts: number;
+  lastWorkoutDate: Date;
+  totalWorkouts: number;
+  createdAt: string;
+  cycle: number;
+  gender: string;
+  PlanId: number;
+  lastWorkoutDuration: number;
+  averageWorkoutDuration: number;
+  weight: number;
+  height: number;
+  active: boolean;
+};
 
 function cancellablePromise<T>(promise: T): [T | Promise<{ canceled: boolean }>, () => void] {
   let cancel = () => {};
 
   const racePromise = Promise.race([
-    new Promise(resolve => {
+    new Promise((resolve) => {
       cancel = () => resolve({ canceled: true });
     }),
-    promise
+    promise,
   ]);
 
   return [racePromise as T | Promise<{ canceled: true }>, cancel];
@@ -26,8 +41,8 @@ const styles = (theme: Theme) =>
   createStyles({
     root: {
       width: "600px",
-      maxWidth: "100%"
-    }
+      maxWidth: "100%",
+    },
   });
 
 interface Props extends WithStyles<typeof styles> {}
@@ -38,7 +53,7 @@ interface State {
 
 class UsersPage extends Component<Props, State> {
   state: State = {
-    users: undefined
+    users: undefined,
   };
 
   unmountCallbacks = new Set<() => void>();
@@ -48,12 +63,12 @@ class UsersPage extends Component<Props, State> {
       const [responsePromise, cancel]: [Promise<any>, () => void] = cancellablePromise(promise);
 
       responsePromise
-        .then(result => {
+        .then((result) => {
           if (!result.canceled) {
             resolve(result);
           }
         })
-        .catch(e => reject(e))
+        .catch((e) => reject(e))
         .finally(() => {
           this.unmountCallbacks.delete(cancel);
         });
@@ -63,13 +78,13 @@ class UsersPage extends Component<Props, State> {
   componentDidMount() {
     this.cancelablePromise(apiClient.get("/admin/users")).then((response: any) => {
       this.setState({
-        users: response.data.users as User[]
+        users: response.data.users as User[],
       });
     });
   }
 
   componentWillUnmount() {
-    this.unmountCallbacks.forEach(callback => callback());
+    this.unmountCallbacks.forEach((callback) => callback());
   }
 
   render() {
