@@ -22,6 +22,7 @@ type User = {
   weight: number;
   height: number;
   active: boolean;
+  nickname: string;
 };
 
 function cancellablePromise<T>(promise: T): [T | Promise<{ canceled: boolean }>, () => void] {

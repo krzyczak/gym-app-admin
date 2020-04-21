@@ -43,6 +43,7 @@ type User = {
   weight: number;
   height: number;
   active: boolean;
+  nickname: string;
 };
 
 interface Props extends WithStyles<typeof styles> {
@@ -61,6 +62,7 @@ class UsersList extends Component<Props> {
           <TableRow>
             <TableCell padding="checkbox">position</TableCell>
             <TableCell padding="checkbox">id</TableCell>
+            <TableCell>nickname</TableCell>
             <TableCell padding="checkbox">average</TableCell>
             <TableCell>last workout at</TableCell>
             <TableCell>last workout duration</TableCell>
@@ -84,6 +86,9 @@ class UsersList extends Component<Props> {
               </TableCell>
               <TableCell padding="checkbox" scope="row">
                 {user.id.slice(0, 15)}
+              </TableCell>
+              <TableCell scope="row">
+                <div style={{ maxWidth: 50, overflow: "auto" }}>{user.nickname}</div>
               </TableCell>
               <TableCell scope="row">{parseFloat(user.average.toFixed(3))}</TableCell>
               <TableCell scope="row">{user.lastWorkoutDate}</TableCell>
