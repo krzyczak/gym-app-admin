@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/gym-app-admin/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "/gym-app-admin/static/js/main.7a0b153c.chunk.js",
-    "main.js.map": "/gym-app-admin/static/js/main.7a0b153c.chunk.js.map",
+    "main.js": "/gym-app-admin/static/js/main.a148d8a8.chunk.js",
+    "main.js.map": "/gym-app-admin/static/js/main.a148d8a8.chunk.js.map",
     "runtime~main.js": "/gym-app-admin/static/js/runtime~main.64a5a28c.js",
     "runtime~main.js.map": "/gym-app-admin/static/js/runtime~main.64a5a28c.js.map",
     "static/js/2.a64bb586.chunk.js": "/gym-app-admin/static/js/2.a64bb586.chunk.js",
     "static/js/2.a64bb586.chunk.js.map": "/gym-app-admin/static/js/2.a64bb586.chunk.js.map",
     "index.html": "/gym-app-admin/index.html",
-    "precache-manifest.97df6ec431b98f5d7922191b5f20323c.js": "/gym-app-admin/precache-manifest.97df6ec431b98f5d7922191b5f20323c.js",
+    "precache-manifest.035d2ed7dd7e0167e8d2a3ea7e695071.js": "/gym-app-admin/precache-manifest.035d2ed7dd7e0167e8d2a3ea7e695071.js",
     "service-worker.js": "/gym-app-admin/service-worker.js",
     "static/css/main.5ecd60fb.chunk.css.map": "/gym-app-admin/static/css/main.5ecd60fb.chunk.css.map"
   }
